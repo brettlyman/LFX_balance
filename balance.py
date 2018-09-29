@@ -4,9 +4,9 @@ from pytz import timezone
 from multiprocessing import Lock
 import os, socket
 
-#import logging
-#log = logging.getLogger('werkzeug')
-#log.setLevel(logging.ERROR)
+import logging
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
@@ -144,6 +144,7 @@ def get_tbody(account):
 
 @app.route('/balance/<account>')
 def balance(account):
+	return "Under construction..."
 	global program
 	response = "Invalid account."
 	
