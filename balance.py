@@ -10,67 +10,130 @@ log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
-program = {
-	'name': 'Affluenza',
-	'investor_deposit': 54637.31,
-	'basis_balance': 59501.78,
-	'current_balance': 54974.86,
-	'current_equity': 54974.86,
-	'high_water_mark': 58458.85,
-	'open_trades': 0,
-	'accounts': {
-		'ben141':{
-			'name': "Benjamin Lyman",
-			'deposit': 3000.00,
-			'basis': 3195.39
-		},
-		'brett592': {
-			'name': "Brett Lyman",
-			'deposit': 25000.00,
-			'basis': 26628.24
-		},
-		'daniel653': {
-			'name': "Daniel Lyman",
-			'deposit': 1753.52,
-			'basis': 1867.73
-		},
-		'devin589': {
-			'name': "Devin Christensen",
-			'deposit': 3000.00,
-			'basis': 3195.39
-		},
-		'eddie34': {
-			'name': "Eddie Lyman",
-			'deposit': 4000.00,
-			'basis': 4260.52
-		},
-		'jacob238': {
-			'name': "Jacob Nielson",
-			'deposit': 1000.00,
-			'basis': 1065.13
-		},
-		'joe416': {
-			'name': "Joseph Lyman",
-			'deposit': 500.00,
-			'basis': 532.56
-		},
-		'marie462': {
-			'name': "Marie Bernhardt",
-			'deposit': 5000.00,
-			'basis': 5325.65
-		},
-		'mat643': {
-			'name': "Mat Lyman",
-			'deposit': 11383.79,
-			'basis': 12125.21
-		},
-		'lymanfx42':{
-			'name': "LymanFX, LLC",
-			'deposit': 1273.85,
-			'basis': 1305.96
-		}
+investors = {
+	'lymanfx42': { # even though LymanFX technically isn't an "investor"...
+		'name': 'LymanFX, LLC',
+		'deposit': 1206.60
+	},
+	'ben141': {
+		'name': 'Ben Lyman',
+		'deposit': 3500
+	},
+	'brett592': {
+		'name': 'Brett Lyman',
+		'deposit': 28000
+	},
+	'daniel653': {
+		'name': 'Daniel Lyman',
+		'deposit': 2000
+	},
+	'devin589': {
+		'name': 'Devin Christensen',
+		'deposit': 3000
+	},
+	'eddie34': {
+		'name': 'Eddie Lyman',
+		'deposit': 2000
+	},
+	'jacob238': {
+		'name': 'Jacob Nielson',
+		'deposit': 1000
+	},
+	'joe416': {
+		'name': 'Joseph Lyman',
+		'deposit': 500
+	},
+	'marie462': {
+		'name': 'Marie Bernhardt',
+		'deposit': 5000
+	},
+	'mat643': {
+		'name': 'Mathew Lyman',
+		'deposit': 16883.79
+	},
+	'notben': {
+		'name': 'Ben Bradley',
+		'deposit': 1000
+	},
+	'karl': {
+		'name': 'Karl Lilley',
+		'deposit': 2500
+	},
+	'ryan': {
+		'name': 'Ryan Nguyen',
+		'deposit': 2500
+	},
+	'abhishek': {
+		'name': 'Abhishek Andhavarapu',
+		'deposit': 2500
 	}
 }
+
+accounts = [
+	{
+		'account_id': 5005757,
+		'name': 'Affluenza II - Stable',
+		'deposit': 46374.86,
+		'balance': 46374.86,
+		'equity': 46374.86,
+		'lymanfx': 606.60,
+		'high_water_mark': 45768.26, # subtract lymanfx from deposit
+		'investors': {
+			'ben141': 3000,
+			'brett592': 14602.35,
+			'daniel653': 1725.63,
+			'devin589': 2952.28,
+			'eddie34': 1936.38,
+			'jacob238': 984.09,
+			'joe416': 492.05,
+			'marie462': 4920.47,
+			'mat643': 14202.72,
+			'notben': 1000
+		},
+		'open_positions': 0
+	},
+	{
+		'account_id': 6750943,
+		'name': 'Affluenza II - Risky',
+		'deposit': 12600,
+		'balance': 12600,
+		'equity': 12600,
+		'lymanfx': 600,
+		'high_water_mark': 12000,
+		'investors': {
+			'brett592': 10000,
+			'mat643': 2000
+		},
+		'open_positions': 0
+	},
+	{
+		'account_id': 10566,
+		'name': 'Tiny',
+		'deposit': 1500,
+		'balance': 2554.45,
+		'equity': 2554.45,
+		'open_positions': 0,
+		'investors': {
+			'brett592': 500,
+			'ben141': 500,
+			'mat643': 500
+		}
+	},
+	{
+		'account_id': 11108,
+		'name': 'Mr. KRABs',
+		'deposit': 10000,
+		'balance': 7613.42,
+		'equity': 7613.42,
+		'open_positions': 0,
+		'investors': {
+			'karl': 2500,
+			'ryan': 2500,
+			'abhishek': 2500,
+			'brett592': 2500
+		}
+	}
+]
 
 
 @app.route('/favicon.ico')
@@ -78,108 +141,139 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico',mimetype='image/vnd.microsoft.icon')
 
 
-@app.route('/tbody/<account>')
-def get_tbody(account):
-	global program
-	program_open_trades = program['open_trades']
+@app.route('/tbody/<username>')
+def get_tbody(username):
+	global accounts, investors
+	show_all = True if request.args.get("all") != None else False
 	response = ""
 	rows = []
-	if account in program['accounts']:
-		
-		lymanfx_basis = program['accounts']['lymanfx42']['basis']
-		lymanfx_percent = lymanfx_basis/program['basis_balance']
-		lymanfx_deposit = program['accounts']['lymanfx42']['deposit']
-		lymanfx_balance = lymanfx_percent * program['current_equity'] # against full balance, since no commission is charged to lymanfx
-		
-		collected_commission = program['accounts']['lymanfx42']['deposit'] # sum of all commission "deposits" (each time we rebase)
-		uncollected_commission = 0
-		total_investor_balance = investor_balance = program['current_equity']-lymanfx_balance
-		if investor_balance > program['high_water_mark']:
-			uncollected_commission = (investor_balance - program['high_water_mark'])/3
-			investor_balance = investor_balance - uncollected_commission
-		investor_profit = investor_balance-program['investor_deposit']
-		investor_return = round((investor_profit/program['investor_deposit'])*100,1)
-		
-		if account == "lymanfx42":
-			account_deposit = lymanfx_deposit
-			account_balance = lymanfx_balance
-		else:
-			account_deposit = program['accounts'][account]['deposit']
-			account_percent = account_deposit/program['investor_deposit']
-			account_balance = account_percent * investor_balance
-		account_profit = account_balance - account_deposit
-		account_percent_return = round(((account_balance-account_deposit)/account_deposit)*100,1)
-		
-		rows.append([program["accounts"][account]["name"],None])
-		rows.append(["Deposit","${:,.2f}".format(account_deposit)])
-		rows.append(["Balance","${:,.2f}".format(account_balance)])
-		rows.append(["Profit/Loss",('-' if account_profit < 0 else '+')+"${:,.2f}".format(abs(account_profit))])
-		rows.append(["Return",('-' if account_profit < 0 else '+')+"{:,.1f}%".format(abs(account_percent_return))])
-		
-		if account == "lymanfx42":
-			overall_profit = program['current_equity']-program['investor_deposit']
-			overall_return = round((overall_profit / program['investor_deposit'])*100,1)
-			rows.append(["Affluenza",None])
-			rows.append(["Deposit","${:,.2f}".format(program['investor_deposit'])])
-			rows.append(["Closed Balance","${:,.2f}".format(program['current_balance'])])
-			rows.append(["Open Balance","${:,.2f}".format(program['current_equity'])])
-			rows.append(["Profit/Loss",('-' if overall_profit < 0 else '+')+"${:,.2f}".format(abs(overall_profit))])
-			rows.append(["Return",('-' if overall_return < 0 else '+')+"{:,.1f}%".format(abs(overall_return))])
-			rows.append(["Investors",None])
-			rows.append(["Balance","${:,.2f}".format(total_investor_balance)])
-			rows.append(["High Water Mark","${:,.2f}".format(program['high_water_mark'])])
-			rows.append(["Uncollected Commission","${:,.2f}".format(uncollected_commission)])
-			rows.append(["Adjusted Balance","${:,.2f}".format(investor_balance)])
-			rows.append(["Profit",('-' if investor_profit < 0 else '+')+"${:,.2f}".format(abs(investor_profit))])
-			rows.append(["Return",('-' if investor_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_return))])
-			rows.append([" ",None])
-	
-	rows.append(["Open Positions",str(program_open_trades)])
+	if username in investors:
+		investor = investors[username]
+		rows.append([investor['name'],None])
+		rows.append(["Deposit","${:,.2f}".format(investor['deposit'])])
+		investor_total_balance = 0
+		num_accounts = 0
+		total_open_positions = 0
+		for account in accounts:
+			lymanfx_deposit, lymanfx_balance = get_lymanfx_balance(account)
+			if show_all or (username == 'lymanfx42' and 'lymanfx' in account) or username in account['investors']:
+				num_accounts += 1
+				total_open_positions += account['open_positions']
+				rows.append([account['name'],None])
+				investors_deposit = account['deposit']-lymanfx_deposit
+				orig_investors_balance = investors_balance = account['equity']-lymanfx_balance
+				uncollected_commission = 0
+				if 'high_water_mark' in account and investors_balance > account['high_water_mark']:
+					uncollected_commission = (investors_balance-account['high_water_mark'])/3
+					investors_balance -= uncollected_commission
+				investors_profit = investors_balance-investors_deposit
+				investors_return = round((investors_profit/investors_deposit)*100,1)
+				if username == "lymanfx42":
+					investor_deposit = lymanfx_deposit
+					investor_balance = lymanfx_balance
+				else:
+					investor_deposit = account['investors'][username]
+					investor_percent = investor_deposit/investors_deposit
+					investor_balance = investor_percent*investors_balance
+				investor_total_balance += investor_balance
+				if investor_deposit > 0:
+					investor_profit = investor_balance-investor_deposit
+					investor_percent_return = round(((investor_profit)/investor_deposit)*100,1)
+					#rows.append(["Deposit","${:,.2f}".format(investor_deposit)]) # hidden since this is "basis" deposit, not actual...
+					rows.append(["Balance","${:,.2f}".format(investor_balance)])
+					#rows.append(["Profit/Loss",('-' if investor_profit < 0 else '+')+"${:,.2f}".format(abs(investor_profit))])
+					#rows.append(["Return",('-' if investor_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_percent_return))])
+				if username == "lymanfx42":
+					account_profit = account['equity']-account['deposit']
+					account_return = round((account_profit/account['deposit'])*100,1)
+					if investor_deposit > 0:
+						rows.append(["---","---"])
+					rows.append(["Total Deposit","${:,.2f}".format(account['deposit'])])
+					rows.append(["Closed Balance","${:,.2f}".format(account['balance'])])
+					rows.append(["Open Balance","${:,.2f}".format(account['equity'])])
+					rows.append(["Profit/Loss",('-' if account_profit < 0 else '+')+"${:,.2f}".format(abs(account_profit))])
+					rows.append(["Overall Return",('-' if account_return < 0 else '+')+"{:,.1f}%".format(abs(account_return))])
+					if 'lymanfx' in account:
+						rows.append(["Investor Balance","${:,.2f}".format(orig_investors_balance)])
+						rows.append(["High Water Mark","${:,.2f}".format(account['high_water_mark'])])
+						rows.append(["Uncollected Commission","${:,.2f}".format(uncollected_commission)])
+						rows.append(["Adj Investor Balance","${:,.2f}".format(investors_balance)])
+						rows.append(["Investor Profit",('-' if investors_profit < 0 else '+')+"${:,.2f}".format(abs(investors_profit))])
+						rows.append(["Investor Return",('-' if investors_profit < 0 else '+')+"{:,.1f}%".format(abs(investors_return))])
+						rows.append(["---","---"])
+				rows.append(["Open Positions",str(account['open_positions'])])
+		investor_total_profit = investor_total_balance-investor['deposit']
+		investor_total_percent_return = round(((investor_total_profit)/investor['deposit'])*100,1)
+		rows.insert(2,["Balance","${:,.2f}".format(investor_total_balance)])
+		rows.insert(3,["Profit/Loss",('-' if investor_total_profit < 0 else '+')+"${:,.2f}".format(abs(investor_total_profit))])
+		rows.insert(4,["Return",('-' if investor_total_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_total_percent_return))])
 	for row in rows:
 		response += template('row_template.html',name=row[0],value=row[1])
-	
-	response += '<tr><td align="right" colspan="2" style="font-size: 12px; color: #AAA">'+datetime.now(timezone('US/Mountain')).strftime('%D %I:%M:%S %p %Z')+'</td></tr>'
+	response += '<tr><td align="right" colspan="2" style="font-size: 12px; color: #AAA">'
+	response += datetime.now(timezone('US/Mountain')).strftime('%D %I:%M:%S %p %Z')
+	response += '</td></tr>'
 	return response
 
 
-@app.route('/balance/<account>')
-def balance(account):
-	return "Under construction..."
-	global program
-	response = "Invalid account."
-	
-	if account == "lymanfx42" or account in program['accounts']:
-		print("["+datetime.now().strftime('%Y-%m-%d %H:%M:%S')+"] Account balance check: "+account)
-		timeout = 5000 if program['open_trades'] > 0 else 30000
-		response = ('<html><head>'
-						'<title>LymanFX Affluenza</title>'
-						'<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"> </script>'
-						'<script type="text/javascript">function update_tbody() { $.get("/tbody/'+account+'", function (response) { $("#main_tbody").html(response); }); window.setTimeout(update_tbody, '+str(timeout)+'); }</script>'
-						'</head><body style="font-family: Arial;">'
-							'<table>'
-								'<tbody id="main_tbody">'+get_tbody(account)+'</tbody>'
-							'</table>'
-						'</body>'
-						'<script type="text/javascript">window.setTimeout(update_tbody, '+str(timeout)+')</script>'
-					'</html>')
-	
-	return response
+def get_lymanfx_balance(account):
+	if 'lymanfx' in account:
+		lymanfx_percent = account['lymanfx']/account['deposit']
+		return account['lymanfx'], lymanfx_percent * account['equity']
+	return 0, 0
+
+
+@app.route('/balance/<username>')
+def balance(username):
+	global accounts, investors
+	tbody_url = '/tbody/{0}?{1}'.format(username,"all" if request.args.get("all") != None else "")
+	logo = '<img src="/static/logo.png" />' if username not in ['karl','ryan','abhishek'] else ''
+	return (''
+		'<html>'
+			'<head>'
+				'<title>LymanFX</title>'
+				'<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js">'
+				'</script>'
+				'<script type="text/javascript">'
+					'function update_tbody() { '
+						'$.get("'+tbody_url+'", function (response) { '
+							'$("#main_tbody").html(response);'
+						'}); '
+						'window.setTimeout(update_tbody, 10000); '
+					'}'
+				'</script>'
+			'</head>'
+			'<body style="font-family: Arial;">'
+				'<table style="width: 300px">'
+					'<thead>'
+						'<tr>'
+							'<td colspan="2" style="text-align: center">'+logo+'</td>'
+						'</tr>'
+					'</thead>'
+					'<tbody id="main_tbody">'+get_tbody(username)+'</tbody>'
+				'</table>'
+			'</body>'
+			'<script type="text/javascript">'
+				'window.setTimeout(update_tbody, 10000)'
+			'</script>'
+		'</html>')
 
 
 @app.route('/update')
 def update():
-	global program
+	global accounts
 	password = request.args.get('p','')
+	account_id = int(request.args.get('a',''))
 	if password == "IbJFJjdTxrvYlrpCYA6f":
-		program['current_balance'] = float(request.args.get('b',''))
-		program['current_equity'] = float(request.args.get('e',''))
-		program['open_trades'] = int(request.args.get('n',''))
-		return 'successful'
+		for i in range(0,len(accounts)):
+			if accounts[i]['account_id'] == account_id:
+				accounts[i]['balance'] = float(request.args.get('b',''))
+				accounts[i]['equity'] = float(request.args.get('e',''))
+				accounts[i]['open_positions'] = int(request.args.get('n',''))
+				return 'successful'
 	else:
-		return 'incorrect password: '+password
+		return 'fail.'
 
 
 #if __name__ == "__main__":
 #	print('Starting web server...')
 #	app.run(debug=False,host='192.168.1.80',port=80)
-
