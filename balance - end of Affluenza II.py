@@ -13,7 +13,7 @@ app = Flask(__name__)
 investors = {
 	'lymanfx42': { # even though LymanFX technically isn't an "investor"...
 		'name': 'LymanFX, LLC',
-		'deposit': 2034.39+58.94+4.50+356.52+106.49+362.63+213.14+6.19+34.73
+		'deposit': 1846.06
 	},
 	'ben141': {
 		'name': 'Ben Lyman',
@@ -21,7 +21,7 @@ investors = {
 	},
 	'brett592': {
 		'name': 'Brett Lyman',
-		'deposit': 29000
+		'deposit': 28000
 	},
 	'daniel653': {
 		'name': 'Daniel Lyman',
@@ -29,7 +29,7 @@ investors = {
 	},
 	'devin589': {
 		'name': 'Devin Christensen',
-		'deposit': 4000
+		'deposit': 3000
 	},
 	'eddie34': {
 		'name': 'Eddie Lyman',
@@ -45,7 +45,7 @@ investors = {
 	},
 	'marie462': {
 		'name': 'Marie Bernhardt',
-		'deposit': 0
+		'deposit': 5000
 	},
 	'mat643': {
 		'name': 'Mathew Lyman',
@@ -71,51 +71,64 @@ investors = {
 
 accounts = [
 	{
-		'account_id': 21962,
-		'name': 'Banana Stand - Stable',
-		'original_deposit': 36481.31,
-		'deposit': 36481.31+58.94+356.52+362.63+6.19,
-		'balance': 38920.82,
-		'equity': 39519.45,
-		'lymanfx': 1078.70+58.94+356.52+362.63+6.19,
-		'high_water_mark': 36975.09,
+		'account_id': 5005757,
+		'name': 'Affluenza III - Stable',
+		'original_deposit': 46374.86,
+		'deposit': 47014.32,
+		'balance': 48638.24,
+		'equity': 48638.24,
+		'lymanfx': 1246.06,
+		'high_water_mark': 47349.14,
 		'investors': {
-			'ben141': 2597.05,
-			'brett592': 12641.04,
-			'daniel653': 1493.85,
-			'devin589': 2555.74,
-			'eddie34': 1676.29,
-			'jacob238': 851.91,
-			'joe416': 425.96,
-			'mat643': 12295.09,
-			'notben': 865.68
+			'ben141': 3000,
+			'brett592': 14602.35,
+			'daniel653': 1725.63,
+			'devin589': 2952.28,
+			'eddie34': 1936.38,
+			'jacob238': 984.09,
+			'joe416': 492.05,
+			'marie462': 4920.47,
+			'mat643': 14202.72,
+			'notben': 1000
 		},
-		'open_positions': 0.27
+		'open_positions': 0
 	},
 	{
-		'account_id': 21185,
-		'name': 'Banana Stand - Risky',
-		'original_deposit': 15346.18,
-		'deposit': 15346.18+4.50+106.49+213.14+34.73,
-		'balance': 16484.22,
-		'equity': 16687.43,
-		'lymanfx': 735.72+4.50+106.49+213.14+34.73,
-		'high_water_mark': 15335.33,
+		'account_id': 6750943,
+		'name': 'Affluenza III - Risky',
+		'original_deposit': 12600,
+		'deposit': 12600,
+		'balance': 11607.97,
+		'equity': 11607.97,
+		'lymanfx': 600,
+		'high_water_mark': 12000,
 		'investors': {
-			'brett592': 10652.79,
-			'mat643': 2387.05,
-			'devin589': 1000.00,
-			'ben141': 570.62
+			'brett592': 10000,
+			'mat643': 2000
 		},
-		'open_positions': 0.09
+		'open_positions': 0
+	},
+	{
+		'account_id': 10566,
+		'name': 'Tiny',
+		'original_deposit': 1500,
+		'deposit': 1500,
+		'balance': 1797.80,
+		'equity': 1797.80,
+		'open_positions': 0,
+		'investors': {
+			'brett592': 500,
+			'ben141': 500,
+			'mat643': 500
+		}
 	},
 	{
 		'account_id': 11108,
 		'name': 'Mr. KRABs',
 		'original_deposit': 10000,
 		'deposit': 10000,
-		'balance': 6573.04,
-		'equity': 6573.04,
+		'balance': 7714.81,
+		'equity': 7714.81,
 		'open_positions': 0,
 		'investors': {
 			'karl': 2500,
@@ -149,13 +162,9 @@ def get_tbody(username):
 			if username == 'lymanfx42' or username in account['investors']:
 				num_accounts += 1
 				total_open_positions += account['open_positions']
-				account_name = account['name']
-				if username == 'telnicky':
-					account_name = 'Bixin - Beta'
-				
-				rows.append([account_name,None])
+				rows.append([account['name'],None])
 				investors_deposit = account['deposit']-lymanfx_deposit
-				orig_investors_balance = investors_balance = account['balance']-lymanfx_balance
+				orig_investors_balance = investors_balance = account['equity']-lymanfx_balance
 				uncollected_commission = 0
 				if 'high_water_mark' in account and investors_balance > account['high_water_mark']:
 					uncollected_commission = (investors_balance-account['high_water_mark'])/3
@@ -178,7 +187,7 @@ def get_tbody(username):
 					#rows.append(["Profit/Loss",('-' if investor_profit < 0 else '+')+"${:,.2f}".format(abs(investor_profit))])
 					#rows.append(["Return",('-' if investor_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_percent_return))])
 				if username == "lymanfx42":
-					account_profit = account['balance']-account['original_deposit']
+					account_profit = account['equity']-account['original_deposit']
 					account_return = round((account_profit/account['original_deposit'])*100,1)
 					if investor_deposit > 0:
 						rows.append(["---","---"])
@@ -195,7 +204,7 @@ def get_tbody(username):
 						rows.append(["Investor Profit",('-' if investors_profit < 0 else '+')+"${:,.2f}".format(abs(investors_profit))])
 						rows.append(["Investor Return",('-' if investors_profit < 0 else '+')+"{:,.1f}%".format(abs(investors_return))])
 						rows.append(["---","---"])
-				rows.append(["Open Units",str(account['open_positions'])])
+				rows.append(["Open Positions",str(account['open_positions'])])
 		investor_total_profit = investor_total_balance-investor['deposit']
 		investor_total_percent_return = round(((investor_total_profit)/investor['deposit'])*100,1)
 		rows.insert(2,["Balance","${:,.2f}".format(investor_total_balance)])
@@ -212,7 +221,7 @@ def get_tbody(username):
 def get_lymanfx_balance(account):
 	if 'lymanfx' in account:
 		lymanfx_percent = account['lymanfx']/account['deposit']
-		return account['lymanfx'], lymanfx_percent * account['balance']
+		return account['lymanfx'], lymanfx_percent * account['equity']
 	return 0, 0
 
 
@@ -262,7 +271,7 @@ def update():
 			if accounts[i]['account_id'] == account_id:
 				accounts[i]['balance'] = float(request.args.get('b',''))
 				accounts[i]['equity'] = float(request.args.get('e',''))
-				accounts[i]['open_positions'] = float(request.args.get('n',''))
+				accounts[i]['open_positions'] = int(request.args.get('n',''))
 				return 'successful'
 	else:
 		return 'fail.'
