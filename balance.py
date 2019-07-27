@@ -13,15 +13,15 @@ app = Flask(__name__)
 investors = {
 	'lymanfx42': { # even though LymanFX technically isn't an "investor"...
 		'name': 'LymanFX, LLC',
-		'deposit': 2034.39+58.94+4.50+356.52+106.49+362.63+213.14+6.19+34.73
+		'deposit': 2034.39+58.94+4.50+356.52+106.49+362.63+213.14+6.19+34.73+201.18+85.19
 	},
 	'ben141': {
 		'name': 'Ben Lyman',
-		'deposit': 3500
+		'deposit': 3500+2000
 	},
 	'brett592': {
 		'name': 'Brett Lyman',
-		'deposit': 29000
+		'deposit': 29000+62582.76
 	},
 	'daniel653': {
 		'name': 'Daniel Lyman',
@@ -57,15 +57,23 @@ investors = {
 	},
 	'karl': {
 		'name': 'Karl Lilley',
-		'deposit': 2500
+		'deposit': 2500+856.74
 	},
 	'ryan': {
 		'name': 'Ryan Nguyen',
-		'deposit': 2500
+		'deposit': 2500+856.74
 	},
 	'abhishek': {
 		'name': 'Abhishek Andhavarapu',
 		'deposit': 2500
+	},
+	'telnicky': {
+		'name': 'Travis Elnicky',
+		'deposit': 1000.00
+	},
+	'evelyn': {
+		'name': 'Evelyn Sharp',
+		'deposit': 1065.36
 	}
 }
 
@@ -74,11 +82,13 @@ accounts = [
 		'account_id': 21962,
 		'name': 'Banana Stand - Stable',
 		'original_deposit': 36481.31,
-		'deposit': 36481.31+58.94+356.52+362.63+6.19,
-		'balance': 38920.82,
-		'equity': 39519.45,
-		'lymanfx': 1078.70+58.94+356.52+362.63+6.19,
-		'high_water_mark': 36975.09,
+		'deposit': 36481.31+58.94+356.52+362.63+6.19+201.18,
+		'balance': 39556.12,
+		'equity':39821.29,
+		'target': 40068.30,
+		'lymanfx': 1078.70+58.94+356.52+362.63+6.19+201.18,
+		'high_water_mark': 37376.85,
+		'open_positions': 0.15,
 		'investors': {
 			'ben141': 2597.05,
 			'brett592': 12641.04,
@@ -89,39 +99,43 @@ accounts = [
 			'joe416': 425.96,
 			'mat643': 12295.09,
 			'notben': 865.68
-		},
-		'open_positions': 0.27
+		}
 	},
 	{
 		'account_id': 21185,
 		'name': 'Banana Stand - Risky',
 		'original_deposit': 15346.18,
-		'deposit': 15346.18+4.50+106.49+213.14+34.73,
-		'balance': 16484.22,
-		'equity': 16687.43,
-		'lymanfx': 735.72+4.50+106.49+213.14+34.73,
-		'high_water_mark': 15335.33,
+		'deposit': 15346.18+4.50+106.49+213.14+34.73+85.19,
+		'balance': 16761.44,
+		'equity': 16878.46,
+		'target': 17166.59,
+		'lymanfx': 735.72+4.50+106.49+213.14+34.73+85.19,
+		'high_water_mark': 15509.11,
+		'open_positions': 0.07,
 		'investors': {
 			'brett592': 10652.79,
 			'mat643': 2387.05,
 			'devin589': 1000.00,
 			'ben141': 570.62
-		},
-		'open_positions': 0.09
+		}
 	},
 	{
-		'account_id': 11108,
-		'name': 'Mr. KRABs',
-		'original_deposit': 10000,
-		'deposit': 10000,
-		'balance': 6573.04,
-		'equity': 6573.04,
+		'account_id': 22803,
+		'name': 'Bixin',
+		'original_deposit': 75000.00,
+		'deposit': 75000.00,
+		'balance': 74976.00,
+		'equity': 74976.00,
+		'target': 77787.60,
 		'open_positions': 0,
 		'investors': {
-			'karl': 2500,
-			'ryan': 2500,
-			'abhishek': 2500,
-			'brett592': 2500
+			'karl': 2500.00,
+			'ryan': 2500.00,
+			'abhishek': 1643.26,
+			'brett592': 64226.02,
+			'ben141': 2000.00,
+			'evelyn': 1065.36,
+			'telnicky': 1065.36
 		}
 	}
 ]
@@ -150,8 +164,6 @@ def get_tbody(username):
 				num_accounts += 1
 				total_open_positions += account['open_positions']
 				account_name = account['name']
-				if username == 'telnicky':
-					account_name = 'Bixin - Beta'
 				
 				rows.append([account_name,None])
 				investors_deposit = account['deposit']-lymanfx_deposit
@@ -185,6 +197,8 @@ def get_tbody(username):
 					rows.append(["Total Deposit","${:,.2f}".format(account['deposit'])])
 					rows.append(["Closed Balance","${:,.2f}".format(account['balance'])])
 					rows.append(["Open Balance","${:,.2f}".format(account['equity'])])
+					rows.append(["Target Balance","${:,.2f}".format(account['target'])])
+					rows.append(["---","---"])
 					rows.append(["Profit/Loss",('-' if account_profit < 0 else '+')+"${:,.2f}".format(abs(account_profit))])
 					rows.append(["Overall Return",('-' if account_return < 0 else '+')+"{:,.1f}%".format(abs(account_return))])
 					if 'lymanfx' in account:
@@ -262,6 +276,7 @@ def update():
 			if accounts[i]['account_id'] == account_id:
 				accounts[i]['balance'] = float(request.args.get('b',''))
 				accounts[i]['equity'] = float(request.args.get('e',''))
+				accounts[i]['target'] = float(request.args.get('t',''))
 				accounts[i]['open_positions'] = float(request.args.get('n',''))
 				return 'successful'
 	else:
