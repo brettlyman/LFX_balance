@@ -1,5 +1,5 @@
 {% if value %}
-<tr><th align="right">{{name}}</th><td align="right" style="padding-left: 10px">{{value}}</td></tr>
+<tr{% if color %} style="color: {{color}}"{% endif %}><th align="right">{{name}}</th><td align="right" style="padding-left: 10px">{{value}}</td></tr>
 {% else %}
 <tr><th align="middle" colspan="2" style="background-color: #DDD">&nbsp;{{name}}&nbsp;</th></tr>
 {% endif %}

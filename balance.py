@@ -153,8 +153,8 @@ def get_tbody(username):
 	rows = []
 	if username in investors:
 		investor = investors[username]
-		rows.append([investor['name'],None])
-		rows.append(["Deposit","${:,.2f}".format(investor['deposit'])])
+		rows.append([investor['name'],None,None])
+		rows.append(["Deposit","${:,.2f}".format(investor['deposit']),None])
 		investor_total_balance = 0
 		num_accounts = 0
 		total_open_positions = 0
@@ -165,7 +165,7 @@ def get_tbody(username):
 				total_open_positions += account['open_positions']
 				account_name = account['name']
 				
-				rows.append([account_name,None])
+				rows.append([account_name,None,None])
 				investors_deposit = account['deposit']-lymanfx_deposit
 				orig_investors_balance = investors_balance = account['balance']-lymanfx_balance
 				uncollected_commission = 0
@@ -185,41 +185,41 @@ def get_tbody(username):
 				if investor_deposit > 0:
 					investor_profit = investor_balance-investor_deposit
 					investor_percent_return = round(((investor_profit)/investor_deposit)*100,1)
-					#rows.append(["Deposit","${:,.2f}".format(investor_deposit)]) # hidden since this is "basis" deposit, not actual...
-					rows.append(["Balance","${:,.2f}".format(investor_balance)])
-					#rows.append(["Profit/Loss",('-' if investor_profit < 0 else '+')+"${:,.2f}".format(abs(investor_profit))])
-					#rows.append(["Return",('-' if investor_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_percent_return))])
+					#rows.append(["Deposit","${:,.2f}".format(investor_deposit),None]) # hidden since this is "basis" deposit, not actual...
+					rows.append(["Balance","${:,.2f}".format(investor_balance),None])
+					#rows.append(["Profit/Loss",('-' if investor_profit < 0 else '+')+"${:,.2f}".format(abs(investor_profit)),None])
+					#rows.append(["Return",('-' if investor_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_percent_return)),None])
 				if username == "lymanfx42":
 					account_profit = account['balance']-account['original_deposit']
 					account_return = round((account_profit/account['original_deposit'])*100,1)
 					if investor_deposit > 0:
-						rows.append(["---","---"])
-					rows.append(["Total Deposit","${:,.2f}".format(account['deposit'])])
-					rows.append(["Closed Balance","${:,.2f}".format(account['balance'])])
-					rows.append(["Open Balance","${:,.2f}".format(account['equity'])])
-					rows.append(["Target Balance","${:,.2f}".format(account['target'])])
-					rows.append(["---","---"])
-					rows.append(["Profit/Loss",('-' if account_profit < 0 else '+')+"${:,.2f}".format(abs(account_profit))])
-					rows.append(["Overall Return",('-' if account_return < 0 else '+')+"{:,.1f}%".format(abs(account_return))])
+						rows.append(["---","---","gray"])
+					rows.append(["Total Deposit","${:,.2f}".format(account['deposit']),None])
+					rows.append(["Closed Balance","${:,.2f}".format(account['balance']),None])
+					rows.append(["Open Balance","${:,.2f}".format(account['equity']),None])
+					rows.append(["Target Balance","${:,.2f}".format(account['target']),"#AAA"])
+					rows.append(["---","---","gray"])
+					rows.append(["Profit/Loss",('-' if account_profit < 0 else '+')+"${:,.2f}".format(abs(account_profit)),None])
+					rows.append(["Overall Return",('-' if account_return < 0 else '+')+"{:,.1f}%".format(abs(account_return)),None])
 					if 'lymanfx' in account:
-						rows.append(["Investor Balance","${:,.2f}".format(orig_investors_balance)])
-						rows.append(["High Water Mark","${:,.2f}".format(account['high_water_mark'])])
-						rows.append(["Uncollected Commission","${:,.2f}".format(uncollected_commission)])
-						rows.append(["Adj Investor Balance","${:,.2f}".format(investors_balance)])
-						rows.append(["Investor Profit",('-' if investors_profit < 0 else '+')+"${:,.2f}".format(abs(investors_profit))])
-						rows.append(["Investor Return",('-' if investors_profit < 0 else '+')+"{:,.1f}%".format(abs(investors_return))])
-						rows.append(["---","---"])
-				rows.append(["Open Units",str(account['open_positions'])])
+						rows.append(["Investor Balance","${:,.2f}".format(orig_investors_balance),None])
+						rows.append(["High Water Mark","${:,.2f}".format(account['high_water_mark']),None])
+						rows.append(["Uncollected Commission","${:,.2f}".format(uncollected_commission),"green"])
+						rows.append(["Adj Investor Balance","${:,.2f}".format(investors_balance),None])
+						rows.append(["Investor Profit",('-' if investors_profit < 0 else '+')+"${:,.2f}".format(abs(investors_profit)),None])
+						rows.append(["Investor Return",('-' if investors_profit < 0 else '+')+"{:,.1f}%".format(abs(investors_return)),None])
+						rows.append(["---","---","gray"])
+				rows.append(["Open Units",str(account['open_positions']),None])
 		investor_total_profit = investor_total_balance-investor['deposit']
 		investor_total_percent_return = round(((investor_total_profit)/investor['deposit'])*100,1)
-		rows.insert(2,["Balance","${:,.2f}".format(investor_total_balance)])
-		rows.insert(3,["Profit/Loss",('-' if investor_total_profit < 0 else '+')+"${:,.2f}".format(abs(investor_total_profit))])
-		rows.insert(4,["Return",('-' if investor_total_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_total_percent_return))])
+		rows.insert(2,["Balance","${:,.2f}".format(investor_total_balance),None])
+		rows.insert(3,["Profit/Loss",('-' if investor_total_profit < 0 else '+')+"${:,.2f}".format(abs(investor_total_profit)),None])
+		rows.insert(4,["Return",('-' if investor_total_profit < 0 else '+')+"{:,.1f}%".format(abs(investor_total_percent_return)),None])
 	for row in rows:
-		response += template('row_template.html',name=row[0],value=row[1])
-	response += '<tr><td align="right" colspan="2" style="font-size: 12px; color: #AAA">'
+		response += template('row_template.html',name=row[0],value=row[1],color=row[2])
+	response += '<tr><th align="middle" colspan="2" style="font-size: 12px; background-color: #DDD; color: #888">'
 	response += datetime.now(timezone('US/Mountain')).strftime('%D %I:%M:%S %p %Z')
-	response += '</td></tr>'
+	response += '</th></tr>'
 	return response
 
 
