@@ -10,12 +10,13 @@ log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
-cirsumvent_commissions = 419.70+570.23
+cirsumvent_commissions = 0.00 # 419.70+570.23
+cirsumvent_3_commissions = 0.00
 
 investors = {
 	'lymanfx42': { # even though LymanFX technically isn't an "investor"...
 		'name': 'LymanFX, LLC',
-		'deposit': 7281.59+cirsumvent_commissions
+		'deposit': 7281.59+2318.46+cirsumvent_commissions+cirsumvent_3_commissions
 	},
 	'ben141': {
 		'name': 'Ben Lyman',
@@ -23,7 +24,7 @@ investors = {
 	},
 	'brett592': {
 		'name': 'Brett Lyman',
-		'deposit': 68482.30+3030.72+2311.07
+		'deposit': 70000
 	},
 	'daniel653': {
 		'name': 'Daniel Lyman',
@@ -31,7 +32,7 @@ investors = {
 	},
 	'devin589': {
 		'name': 'Devin Christensen',
-		'deposit': 4000+20000
+		'deposit': 4000+20000+26000
 	},
 	'eddie34': {
 		'name': 'Eddie Lyman',
@@ -71,7 +72,7 @@ investors = {
 	},
 	'laurelc': {
 		'name': 'Laurel Christensen',
-		'deposit': 37500.00
+		'deposit': 37500.00+15000.00+30000
 	},
 	'toddg': {
 		'name': 'Todd Grant',
@@ -80,25 +81,6 @@ investors = {
 }
 
 accounts = [
-	{
-		'account_id': 496543757,
-		'name': 'Bixin II',
-		'original_deposit': 15000.00,
-		'deposit': 15000.00,
-		'balance': 15210.29,
-		'equity': 15565.14, 
-		'reset_balance': 15000.00,
-		'period_target': 15540.15,
-		'target': 16050,
-		'open_positions': 99,
-		'last_update': datetime.now(timezone('US/Mountain')),
-		'investors': {
-			'brett592': 5252.61+1183.55+1183.55,
-			'karl': 2777.36,
-			'ryan': 2777.36,
-			'abhishek': 1825.57
-		}
-	},
 	{
 		'account_id': 496675395,
 		'name': 'Cirsumvent',
@@ -127,6 +109,25 @@ accounts = [
 			'toddg': 15000.00
 		}
 	},
+	{
+		'account_id': 497826702,
+		'name': 'Cirsumvent III',
+		'original_deposit': 77955.39,
+		'deposit': 77955.39+cirsumvent_3_commissions,
+		'balance': 77955.39,
+		'equity': 77955.39,
+		'reset_balance': 77955.39,
+		'period_target': 77955.39,
+		'target': 77955.39,
+		'lymanfx': 2318.46,
+		'high_water_mark': 75636.93,
+		'open_positions': 0,
+		'last_update': datetime.now(timezone('US/Mountain')),
+		'investors': {
+			'laurelc': 19636.93+30000,
+			'devin589': 26000
+		}
+	}
 ]
 
 
