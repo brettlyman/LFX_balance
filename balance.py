@@ -72,8 +72,8 @@ accounts = [
 		'name': 'd\'Artagnan',
 		'original_deposit': 338036.47,
 		'deposit': 338036.47,
-		'balance': 338036.47,
-		'equity': 338036.47,
+		'balance': 359207.76,
+		'equity': 359207.76,
 		'lymanfx': 0,
 		'high_water_mark': 338036.47,
 		'last_update': datetime.now(timezone('US/Mountain')),
@@ -152,11 +152,14 @@ def get_tbody(username):
 				if investor_deposit > 0:
 					investor_profit = investor_balance-investor_deposit
 					investor_percent_return = round(((investor_profit)/investor_deposit)*100,2)
+					investor_equity_profit = investor_equity-investor_deposit
+					investor_equity_percent_return = round(((investor_equity_profit)/investor_deposit)*100,2)
 					rows.append(["Deposit/Carryover","${:,.2f}".format(investor_deposit),None,None])
 					rows.append(["Balance","${:,.2f}".format(investor_balance),None,None])
-					rows.append(["Live Balance","${:,.2f}".format(investor_equity),"#AAA",None])
 					rows.append(["Profit/Loss",('-' if investor_profit < 0 else '+')+"${:,.2f}".format(abs(investor_profit)),None,None])
 					rows.append(["Return",('-' if investor_profit < 0 else '+')+"{:,.2f}%".format(abs(investor_percent_return)),None,None])
+					rows.append(["Live Balance","${:,.2f}".format(investor_equity),"#AAA",None])
+					rows.append(["Live Profit",('-' if investor_equity_profit < 0 else '+')+"{:,.2f}%".format(abs(investor_equity_percent_return)),"#AAA",None])
 				if username == "lymanfx42":
 					account_profit = account['balance']-account['original_deposit']
 					account_return = round((account_profit/account['original_deposit'])*100,2)
@@ -188,9 +191,9 @@ def get_tbody(username):
 		investor_total_profit = investor_total_balance-investor['deposit']
 		investor_total_percent_return = round(((investor_total_profit)/investor['deposit'])*100,2)
 		rows.insert(2,["Balance","${:,.2f}".format(investor_total_balance),None,None])
-		rows.insert(3,["Live Balance","${:,.2f}".format(investor_total_equity),"#AAA",None])
-		rows.insert(4,["Profit/Loss",('-' if investor_total_profit < 0 else '+')+"${:,.2f}".format(abs(investor_total_profit)),None,None])
-		rows.insert(5,["Return",('-' if investor_total_profit < 0 else '+')+"{:,.2f}%".format(abs(investor_total_percent_return)),None,None])
+		#rows.insert(3,["Live Balance","${:,.2f}".format(investor_total_equity),"#AAA",None])
+		rows.insert(3,["Profit/Loss",('-' if investor_total_profit < 0 else '+')+"${:,.2f}".format(abs(investor_total_profit)),None,None])
+		rows.insert(4,["Return",('-' if investor_total_profit < 0 else '+')+"{:,.2f}%".format(abs(investor_total_percent_return)),None,None])
 	for row in rows:
 		response += template('row_template.html',name=row[0],value=row[1],color=row[2],date_string=row[3])
 	return response
